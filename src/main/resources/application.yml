@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: local
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: com-tajne-test-svbackend
+
+server:
+  port: 9097
+  compression:
+    enabled: true
+    excluded-user-agents:
+    mime-types: application/json
+    min-response-size: 0
+
+logging:
+  pattern:
+    console: "%d %p [%t] [%c{1}:%M\\(%L\\)] [trace_id=%mdc{traceId}, span_id=%mdc{spanId}] %msg%n"
