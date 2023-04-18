@@ -7,7 +7,7 @@ spring:
     name: com-tajne-test-svbackend
 
 server:
-  port: 9097
+  port: 8097
   compression:
     enabled: true
     excluded-user-agents:

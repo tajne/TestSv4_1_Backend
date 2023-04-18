@@ -1,0 +1,13 @@
+logging:
+  level:
+    root: INFO
+    com.tajne.test.svbackend: DEBUG
+    reactor.netty.http.client: DEBUG
+
+web-client-service:
+  maxInMemorySize: 10485760
+api:
+  gbs-banking-service:
+    url: https://sandbox.platfr.io
+    timeout: 25000
+    api-key: FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP
