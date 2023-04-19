@@ -11,7 +11,7 @@ public abstract class GeneralResponseDto<T> {
     private String status;
 
     @JsonProperty("error")
-    private List<String> error;
+    private List<ErrorResponseDto> error;
 
     @JsonProperty("payload")
     private T payload;

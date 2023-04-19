@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tajne.test.svbackend.outbound.RequestResponseSerializer;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountBalanceResponseDto;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountResponseDto;
+import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountTransactionListResponseDto;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +18,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import java.text.SimpleDateFormat;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 @Service
@@ -74,15 +77,15 @@ public class GbsBankingService {
                 .accept(MediaType.APPLICATION_JSON)
                 .acceptCharset(StandardCharsets.UTF_8)
                 .headers(h -> h.addAll(headersParamMap))
-                .exchange()
+                .exchangeToMono(clientResponse -> resultHandling(clientResponse, String.class))
                 .timeout(Duration.ofMillis(gbsBankingTimeout), Mono.error(new TimeoutException()))
-                .flatMap( clientResponse -> resultHandling(clientResponse, String.class)).block();
+                .block();
         log.info("Response body: {} ", monoResponse);
         JsonNode jsonResult = new ObjectMapper().readValue(monoResponse, JsonNode.class);
         return requestResponseSerializer.objConversion(jsonResult, responseType);
     }
 
-    private final String GET_CASH_ACCOUNT_ENDPOINT = "/api/gbs/banking/v4.0/accounts/%d";
+    private static final String GET_CASH_ACCOUNT_ENDPOINT = "/api/gbs/banking/v4.0/accounts/%d";
     public CashAccountResponseDto getCashAccount(Long accountId) throws JsonProcessingException {
 
         CallActivationParam callActivationParam = new CallActivationParam();
@@ -90,11 +93,26 @@ public class GbsBankingService {
         return executeGetCall(callActivationParam, CashAccountResponseDto.class);
     }
 
-    private final String GET_CASH_ACCOUNT_BALANCE_ENDPOINT = GET_CASH_ACCOUNT_ENDPOINT + "/balance";
+    private static final String GET_CASH_ACCOUNT_BALANCE_ENDPOINT = GET_CASH_ACCOUNT_ENDPOINT + "/balance";
     public CashAccountBalanceResponseDto getCashAccountBalance(Long accountId) throws JsonProcessingException {
 
         CallActivationParam callActivationParam = new CallActivationParam();
         callActivationParam.setApiPath(String.format(GET_CASH_ACCOUNT_BALANCE_ENDPOINT, accountId));
         return executeGetCall(callActivationParam, CashAccountBalanceResponseDto.class);
+    }
+
+    private static final String GET_CASH_ACCOUNT_TRANSACTIONS_ENDPOINT = GET_CASH_ACCOUNT_ENDPOINT + "/transactions";
+    public CashAccountTransactionListResponseDto getCashAccountTransactionList(Long accountId, Date fromDate, Date toDate) throws JsonProcessingException {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        CallActivationParam callActivationParam = new CallActivationParam();
+        callActivationParam.setApiPath(String.format(GET_CASH_ACCOUNT_TRANSACTIONS_ENDPOINT, accountId));
+
+        MultiValueMap<String, String> queryParams  = new LinkedMultiValueMap<>();
+        queryParams.add("fromAccountingDate", dateFormat.format(fromDate));
+        queryParams.add("toAccountingDate", dateFormat.format(toDate));
+        callActivationParam.setQueryParams(queryParams);
+        return executeGetCall(callActivationParam, CashAccountTransactionListResponseDto.class);
+
     }
 }

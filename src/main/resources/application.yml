@@ -13,6 +13,9 @@ server:
     excluded-user-agents:
     mime-types: application/json
     min-response-size: 0
+  error:
+    include-message: always
+#    include-stacktrace: always
 
 logging:
   pattern:
