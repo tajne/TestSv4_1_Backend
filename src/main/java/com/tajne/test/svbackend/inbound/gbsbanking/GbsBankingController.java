@@ -1,9 +1,9 @@
 package com.tajne.test.svbackend.inbound.gbsbanking;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tajne.test.svbackend.outbound.gbsbanking.GbsBankingService;
-import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountResponseDto;
-import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountBalanceDto;
+import com.tajne.test.svbackend.domain.exception.CashAccountBalanceException;
+import com.tajne.test.svbackend.domain.service.AccountCashService;
+import com.tajne.test.svbackend.domain.service.output.AccountCashBalanceDto;
+import com.tajne.test.svbackend.inbound.gbsbanking.output.AccountCashBalanceOutput;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,18 +21,19 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/gbs-banking")
 public class GbsBankingController {
 
-    private final GbsBankingService gbsBankingService;
+    private final AccountCashService accountCashService;
 
     @GetMapping(value="/account-cash/{accountId}/balance", produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String AccountCashBalance(@PathVariable("accountId") Long accountId) {
+    public AccountCashBalanceOutput AccountCashBalance(@PathVariable("accountId") Long accountId) {
         log.debug("AccountCashBalance called for accountId:={}", accountId);
-
         try {
-            CashAccountResponseDto<CashAccountBalanceDto> response = gbsBankingService.getCashAccountBalance(accountId);
-            CashAccountBalanceDto cashAccountBalanceDto = response.getPayload();
-            return String.format("%f %s",cashAccountBalanceDto.getAvailableBalance(), cashAccountBalanceDto.getCurrency());
-        } catch (JsonProcessingException exc) {
+            AccountCashBalanceDto response = accountCashService.getCashAccountBalance(accountId);
+            AccountCashBalanceOutput output = new AccountCashBalanceOutput();
+            output.setAvailableBalance(response.getAvailableBalance());
+            output.setCurrency(response.getCurrency());
+            return output;
+        } catch (CashAccountBalanceException exc) {
             log.error("{} exception caught: {}", exc.getClass().getName(), exc.getMessage(), exc );
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, exc.getMessage(), exc);

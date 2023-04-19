@@ -1,13 +1,11 @@
 package com.tajne.test.svbackend.outbound.gbsbanking;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tajne.test.svbackend.outbound.RequestResponseSerializer;
+import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountBalanceResponseDto;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountResponseDto;
-import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountBalanceDto;
-import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountDto;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +59,7 @@ public class GbsBankingService {
         return clientResponse.bodyToMono(responseType);
     }
 
-    private <T> CashAccountResponseDto<T> executeGetCall(CallActivationParam callActivationParam, Class<T> responseType) throws JsonProcessingException {
+    private <T> T executeGetCall(CallActivationParam callActivationParam, Class<T> responseType) throws JsonProcessingException {
 
         MultiValueMap<String, String> headersParamMap = new LinkedMultiValueMap<>();
         headersParamMap.add("Auth-Schema", "S2S");
@@ -81,25 +79,22 @@ public class GbsBankingService {
                 .flatMap( clientResponse -> resultHandling(clientResponse, String.class)).block();
         log.info("Response body: {} ", monoResponse);
         JsonNode jsonResult = new ObjectMapper().readValue(monoResponse, JsonNode.class);
-        CashAccountResponseDto<T> res = new CashAccountResponseDto<>();
-        res.setStatus(jsonResult.get("status").textValue());
-        res.setPayload(requestResponseSerializer.objConversion(jsonResult.get("payload"), responseType));
-        return res;
+        return requestResponseSerializer.objConversion(jsonResult, responseType);
     }
 
     private final String GET_CASH_ACCOUNT_ENDPOINT = "/api/gbs/banking/v4.0/accounts/%d";
-    public CashAccountResponseDto<CashAccountDto> getCashAccount(Long accountId) throws JsonProcessingException {
+    public CashAccountResponseDto getCashAccount(Long accountId) throws JsonProcessingException {
 
         CallActivationParam callActivationParam = new CallActivationParam();
         callActivationParam.setApiPath(String.format(GET_CASH_ACCOUNT_ENDPOINT, accountId));
-        return executeGetCall(callActivationParam, CashAccountDto.class);
+        return executeGetCall(callActivationParam, CashAccountResponseDto.class);
     }
 
     private final String GET_CASH_ACCOUNT_BALANCE_ENDPOINT = GET_CASH_ACCOUNT_ENDPOINT + "/balance";
-    public CashAccountResponseDto<CashAccountBalanceDto> getCashAccountBalance(Long accountId) throws JsonProcessingException {
+    public CashAccountBalanceResponseDto getCashAccountBalance(Long accountId) throws JsonProcessingException {
 
         CallActivationParam callActivationParam = new CallActivationParam();
         callActivationParam.setApiPath(String.format(GET_CASH_ACCOUNT_BALANCE_ENDPOINT, accountId));
-        return executeGetCall(callActivationParam, CashAccountBalanceDto.class);
+        return executeGetCall(callActivationParam, CashAccountBalanceResponseDto.class);
     }
 }
