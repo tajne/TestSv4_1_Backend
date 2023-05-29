@@ -3,7 +3,7 @@ package com.tajne.test.svbackend.outbound.gbsbanking;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tajne.test.svbackend.outbound.RequestResponseSerializer;
+import com.tajne.test.svbackend.util.RequestResponseSerializer;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountBalanceResponseDto;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountResponseDto;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountTransactionListResponseDto;

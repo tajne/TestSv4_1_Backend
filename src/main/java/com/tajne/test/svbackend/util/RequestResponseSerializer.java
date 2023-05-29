@@ -1,4 +1,4 @@
-package com.tajne.test.svbackend.outbound;
+package com.tajne.test.svbackend.util;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;

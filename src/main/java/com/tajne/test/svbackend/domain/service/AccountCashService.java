@@ -4,7 +4,7 @@ import com.tajne.test.svbackend.domain.exception.CashAccountBalanceException;
 import com.tajne.test.svbackend.domain.exception.CashAccountTransactionsException;
 import com.tajne.test.svbackend.domain.service.output.AccountCashBalanceDto;
 import com.tajne.test.svbackend.domain.service.output.AccountCashTransactionListDto;
-import com.tajne.test.svbackend.outbound.RequestResponseSerializer;
+import com.tajne.test.svbackend.util.RequestResponseSerializer;
 import com.tajne.test.svbackend.outbound.gbsbanking.GbsBankingService;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountBalanceDto;
 import com.tajne.test.svbackend.outbound.gbsbanking.dto.CashAccountBalanceResponseDto;

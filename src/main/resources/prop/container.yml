@@ -1,0 +1,10 @@
+this-is-root:
+  this-is-prop-multiline: >-
+    {
+    	pageInfo {
+            currentPage
+            totalAvailablePages
+            totalElement
+            totalElementsInPage
+       }
+    }
